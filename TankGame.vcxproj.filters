@@ -1,0 +1,180 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="소스 파일">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="헤더 파일">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="리소스 파일">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="소스 파일\Core">
+      <UniqueIdentifier>{e06f5c91-5e74-4dfe-9cd8-1906f6469267}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Core">
+      <UniqueIdentifier>{22641ee0-0be7-4ebb-9b22-1e7b2dc1c261}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Core\Components">
+      <UniqueIdentifier>{6c370b15-2601-4d4c-8404-7b8f3b77b131}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Core\Enum">
+      <UniqueIdentifier>{2a42c665-17eb-4314-b2de-1d7f466a13b7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Core\Struct">
+      <UniqueIdentifier>{fbe6dea5-1bfc-4f3e-9b83-07fe0d97665a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\Core\UtilfFunction">
+      <UniqueIdentifier>{3b29b015-7be8-4dcd-b1e5-5d9c2c27a19a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Core\Components">
+      <UniqueIdentifier>{eccb3ae9-ce66-401b-827c-610e8017ccec}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\Core\Struct">
+      <UniqueIdentifier>{f7cf6139-a112-47d3-adcb-e78c796ef7d5}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\TankGame">
+      <UniqueIdentifier>{c4f4a582-765f-44d1-9463-34a9e8a7baa1}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\TankGame">
+      <UniqueIdentifier>{1b220ecc-f2df-4322-bcbf-25c5c86873f7}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\TankGame\Scene">
+      <UniqueIdentifier>{03da7745-d359-48c2-8fdd-de316a896f2a}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\TankGame\GameObject">
+      <UniqueIdentifier>{4d647405-7cb3-4607-b3ad-6a451a197441}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="헤더 파일\TankGame\Enum">
+      <UniqueIdentifier>{40f936bf-f607-469b-b3e5-532a31496e33}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\TankGame\GameObject">
+      <UniqueIdentifier>{905157ec-05e8-4d92-ab93-df0f9201a073}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="소스 파일\TankGame\Scene">
+      <UniqueIdentifier>{fedb7ef5-dc30-456f-802d-fb54c1d2751c}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="ProgramCore.cpp">
+      <Filter>소스 파일\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="winmain.cpp">
+      <Filter>소스 파일\Core</Filter>
+    </ClCompile>
+    <ClCompile Include="Camera.cpp">
+      <Filter>소스 파일\Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Collider.cpp">
+      <Filter>소스 파일\Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="GameObject.cpp">
+      <Filter>소스 파일\Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="ImageRenderer.cpp">
+      <Filter>소스 파일\Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="RectCollider.cpp">
+      <Filter>소스 파일\Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="RectRenderer.cpp">
+      <Filter>소스 파일\Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Renderer.cpp">
+      <Filter>소스 파일\Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>소스 파일\Core\Components</Filter>
+    </ClCompile>
+    <ClCompile Include="Image.cpp">
+      <Filter>소스 파일\Core\Struct</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>소스 파일</Filter>
+    </ClCompile>
+    <ClCompile Include="TankGameScene.cpp">
+      <Filter>소스 파일\TankGame\Scene</Filter>
+    </ClCompile>
+    <ClCompile Include="Block.cpp">
+      <Filter>소스 파일\TankGame\GameObject</Filter>
+    </ClCompile>
+    <ClCompile Include="Missile.cpp">
+      <Filter>소스 파일\TankGame\GameObject</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="WndBase.h">
+      <Filter>헤더 파일\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="ProgramCore.h">
+      <Filter>헤더 파일\Core</Filter>
+    </ClInclude>
+    <ClInclude Include="Camera.h">
+      <Filter>헤더 파일\Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Collider.h">
+      <Filter>헤더 파일\Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="GameObject.h">
+      <Filter>헤더 파일\Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ImageRenderer.h">
+      <Filter>헤더 파일\Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="RectCollider.h">
+      <Filter>헤더 파일\Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Renderer.h">
+      <Filter>헤더 파일\Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="Scene.h">
+      <Filter>헤더 파일\Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="RectRenderer.h">
+      <Filter>헤더 파일\Core\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumMouse.h">
+      <Filter>헤더 파일\Core\Enum</Filter>
+    </ClInclude>
+    <ClInclude Include="Image.h">
+      <Filter>헤더 파일\Core\Struct</Filter>
+    </ClInclude>
+    <ClInclude Include="Vector2D.h">
+      <Filter>헤더 파일\Core\Struct</Filter>
+    </ClInclude>
+    <ClInclude Include="Execution.h">
+      <Filter>헤더 파일\Core\UtilfFunction</Filter>
+    </ClInclude>
+    <ClInclude Include="TankGameScene.h">
+      <Filter>헤더 파일\TankGame\Scene</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumImg.h">
+      <Filter>헤더 파일\TankGame\Enum</Filter>
+    </ClInclude>
+    <ClInclude Include="Block.h">
+      <Filter>헤더 파일\TankGame\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumBlockState.h">
+      <Filter>헤더 파일\TankGame\Enum</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumBlockType.h">
+      <Filter>헤더 파일\TankGame\Enum</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumColliderTag.h">
+      <Filter>헤더 파일\TankGame\Enum</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumRenderOrder.h">
+      <Filter>헤더 파일\TankGame\Enum</Filter>
+    </ClInclude>
+    <ClInclude Include="Missile.h">
+      <Filter>헤더 파일\TankGame\GameObject</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumDirection.h">
+      <Filter>헤더 파일\TankGame\Enum</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
