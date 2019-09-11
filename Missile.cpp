@@ -2,6 +2,7 @@
 #include "EnumDirection.h"
 #include "EnumImg.h"
 #include "EnumColliderTag.h"
+#include "EnumRenderOrder.h"
 using namespace std;
 
 const float Missile::movingSpeed = 100.0f;
@@ -41,6 +42,7 @@ Missile::Missile(int direction, int x, int y)
 	Collider::Tag = COL_TAG_MISSILE;
 	RectCollider::render = new RectRenderer();
 	RectCollider::render->SetWidthHeight(width, height);
+	Renderer::zIndex = ORDER_TANK;
 
 }
 

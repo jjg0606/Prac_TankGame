@@ -81,7 +81,9 @@ void TankGameScene::GenerateObjects()
 	GenerateBlock(0, 0, 0);
 	GenerateBlock(0, 0, 40);
 	GenerateBlock(0, 0, 80);
-	GenerateBlock(0, 0, 120);
+	GenerateBlock(SEA, 0, 120);
+	GenerateBlock(ADVANCED_FULL, 0, 160);
+	GenerateBlock(FOREST, 0, 200);
 	GenerateMissile(D_UP, 0, 500);
 }
 
