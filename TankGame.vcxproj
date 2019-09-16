@@ -145,8 +145,10 @@
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageRenderer.cpp" />
+    <ClCompile Include="Line.cpp" />
     <ClCompile Include="main.cpp" />
     <ClCompile Include="Missile.cpp" />
+    <ClCompile Include="PlayerTank.cpp" />
     <ClCompile Include="ProgramCore.cpp" />
     <ClCompile Include="RectCollider.cpp" />
     <ClCompile Include="RectRenderer.cpp" />
@@ -170,7 +172,9 @@
     <ClInclude Include="GameObject.h" />
     <ClInclude Include="Image.h" />
     <ClInclude Include="ImageRenderer.h" />
+    <ClInclude Include="Line.h" />
     <ClInclude Include="Missile.h" />
+    <ClInclude Include="PlayerTank.h" />
     <ClInclude Include="ProgramCore.h" />
     <ClInclude Include="RectCollider.h" />
     <ClInclude Include="RectRenderer.h" />

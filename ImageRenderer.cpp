@@ -1,11 +1,21 @@
 #include "ImageRenderer.h"
 
-ImageRenderer::ImageRenderer(Image* img, UINT transparent)
+ImageRenderer::ImageRenderer(Image* img, UINT transparent,int zIndex)
 {
 	this->img = img;
 	this->transparent = transparent;
 	position.x = 0;
 	position.y = 0;
+	Renderer::zIndex = zIndex;
+}
+
+void ImageRenderer::Init(Image* img, UINT transparent,int zIndex)
+{
+	this->img = img;
+	this->transparent = transparent;
+	position.x = 0;
+	position.y = 0;
+	Renderer::zIndex = zIndex;
 }
 
 void ImageRenderer::SetPosition(int x, int y)

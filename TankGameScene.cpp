@@ -2,8 +2,14 @@
 #include "ProgramCore.h"
 #include <algorithm>
 #include "EnumDirection.h"
+#include <fstream>
 
 using namespace std;
+
+int TankGameScene::leftBound = 100;
+int TankGameScene::rightBound = 1000;
+int TankGameScene::topBound = 100;
+int TankGameScene::bottomBound = 1000;
 
 TankGameScene::TankGameScene()
 {
@@ -51,10 +57,10 @@ void TankGameScene::LoadImages()
 	imageMap[EXPLOSION_2] = new Image(L"res/explosion_02.bmp");
 	imageMap[EXPLOSION_3] = new Image(L"res/explosion_03.bmp");
 	imageMap[EXPLOSION_4] = new Image(L"res/explosion_04.bmp");
-	imageMap[MISSILE_RIGHT] = new Image(L"res/missile_00.bmp");
-	imageMap[MISSILE_LEFT] = new Image(L"res/missile_02.bmp");
-	imageMap[MISSILE_UP] = new Image(L"res/missile_03.bmp");
-	imageMap[MISSILE_DOWN] = new Image(L"res/missile_01.bmp");
+	imageMap[MISSILE_RIGHT] = new Image(L"res/missile_02.bmp");
+	imageMap[MISSILE_LEFT] = new Image(L"res/missile_00.bmp");
+	imageMap[MISSILE_UP] = new Image(L"res/missile_01.bmp");
+	imageMap[MISSILE_DOWN] = new Image(L"res/missile_03.bmp");
 	imageMap[SHIELD_0] = new Image(L"res/shield_00.bmp");
 	imageMap[SHIELD_1] = new Image(L"res/shield_01.bmp");
 	imageMap[P_TANK_DOWN_0] = new Image(L"res/tank_down_00.bmp");
@@ -68,23 +74,65 @@ void TankGameScene::LoadImages()
 	imageMap[ICON_E_TANK] = new Image(L"res/enemy_icon.bmp");
 	imageMap[ICON_P_TANK] = new Image(L"res/player_icon.bmp");
 	imageMap[ICON_STAGE] = new Image(L"res/stage_icon.bmp");
+
+
+	blockWidth = imageMap[NORMAL_BLOCK_FULL]->bmWidth;
+	blockHeight = imageMap[NORMAL_BLOCK_FULL]->bmHeight;
 }
 
 
 void TankGameScene::SetResourceMap()
 {
+	rightBound = leftBound + 13 * blockWidth;
+	bottomBound = topBound + 13 * blockHeight;
+	gameRect.left = leftBound;
+	gameRect.right = rightBound;
+	gameRect.top = topBound;
+	gameRect.bottom = bottomBound;
 	resourceMap["imgmap"] = &imageMap;
 }
 
 void TankGameScene::GenerateObjects()
 {
-	GenerateBlock(0, 0, 0);
-	GenerateBlock(0, 0, 40);
-	GenerateBlock(0, 0, 80);
-	GenerateBlock(SEA, 0, 120);
-	GenerateBlock(ADVANCED_FULL, 0, 160);
-	GenerateBlock(FOREST, 0, 200);
-	GenerateMissile(D_UP, 0, 500);
+	LoadStage(1);
+	//GenerateBlock(0, 0, 0);
+	//GenerateBlock(0, 0, 40);
+	//GenerateBlock(0, 0, 80);
+	//GenerateBlock(SEA, 0, 120);
+	////GenerateBlock(ADVANCED_FULL, 0, 160);
+	//GenerateBlock(FOREST, 0, 200);
+	//GeneratePMissile(D_UP, 5, 200);
+	//GeneratePlayerTank(100, 100);
+}
+
+void TankGameScene::LoadStage(int num)
+{
+	string loadfile = "stage/"+to_string(num) + ".txt";
+
+	ifstream fis(loadfile, ios_base::in);
+
+	if (!fis.good())
+	{
+		return;
+	}
+
+	for (int row = 0; row < 13; row++)
+	{
+		blockMap.push_back(vector<Block*>());
+		for (int col = 0; col < 13; col++)
+		{
+			int read;
+			fis >> read;
+			Block* cur = GenerateBlock(read, leftBound + col * blockWidth, topBound + row * blockHeight);
+			blockMap[row].push_back(cur);
+		}
+	}
+
+	
+	fis.close();
+	GeneratePlayerTank(leftBound + 4 * blockWidth, topBound + 12 * blockHeight);
+	GeneratePMissile();
+	
 }
 
 void TankGameScene::Release()
@@ -105,14 +153,33 @@ void TankGameScene::Release()
 
 void TankGameScene::DrawScreen(HDC hdc)
 {
-	FillRect(hdc, &getWinRect(), (HBRUSH)GetStockObject(BLACK_BRUSH));
+	FillRect(hdc, &getWinRect(), (HBRUSH)GetStockObject(GRAY_BRUSH));
+	FillRect(hdc, &gameRect, (HBRUSH)GetStockObject(WHITE_BRUSH));
+	//BLACK_BRUSH
+	//black_brush
 	for (auto iter = renderMap.begin(); iter != renderMap.end(); iter++)
 	{
 		iter->second->Render(hdc);
 	}
+#ifdef _DEBUG_MODE_
+	for (auto iter = colList.begin(); iter != colList.end(); iter++)
+	{
+		if ((*iter)->isActive)
+		{
+			(*iter)->DrawCollider(hdc);
+		}
+	}
+	for (auto iter = floorCol.begin(); iter != floorCol.end(); iter++)
+	{
+		if ((*iter)->isActive)
+		{
+			(*iter)->DrawCollider(hdc);
+		}
+	}
+#endif
 }
 
-void TankGameScene::GenerateBlock(int blockImg,int xpos,int ypos)
+Block* TankGameScene::GenerateBlock(int blockImg,int xpos,int ypos)
 {
 	int width = imageMap[NORMAL_BLOCK_FULL]->bmWidth;
 	int height = imageMap[NORMAL_BLOCK_FULL]->bmHeight;
@@ -124,33 +191,52 @@ void TankGameScene::GenerateBlock(int blockImg,int xpos,int ypos)
 	{
 		floorCol.push_back(b);
 	}
+	return b;
 }
 
-void TankGameScene::GenerateMissile(int direction, int xpos, int ypos)
+Missile* TankGameScene::GeneratePMissile()
 {
-	Missile* mi = new Missile(direction, xpos, ypos);
+	Missile* mi = new Missile();
+	resourceMap["pmissile"] = mi;
 	mi->Start();
 	activeObjList.push_back(mi);
 	renderMap.insert(make_pair(mi->zIndex, mi));
 	colList.push_back(mi);
+	return mi;
+}
+
+Missile* TankGameScene::GenerateEMissile(int direction, int xpos, int ypos)
+{
+	Missile* mi = new Missile(direction, xpos, ypos,false);
+	mi->Start();
+	activeObjList.push_back(mi);
+	renderMap.insert(make_pair(mi->zIndex, mi));
+	colList.push_back(mi);
+	return mi;
+}
+
+PlayerTank* TankGameScene::GeneratePlayerTank(int xpos, int ypos)
+{
+	PlayerTank* ptank = new PlayerTank(xpos, ypos);
+	ptank->Start();
+	activeObjList.push_back(ptank);
+	renderMap.insert(make_pair(ptank->zIndex, ptank));
+	colList.push_back(ptank);
+	return ptank;
 }
 
 void TankGameScene::Update()
 {
-	for (auto iter = activeObjList.begin(); iter != activeObjList.end();)
+	for (auto iter = activeObjList.begin(); iter != activeObjList.end(); iter++)
 	{
 		(*iter)->Update();
-		if ((*iter)->isActive)
-		{
-			iter++;
-		}
-		else
-		{
-			deactiveObjList.push_back(*iter);
-			iter = activeObjList.erase(iter);
-		}
 	}
 	DetectCollision();
+
+	for (auto iter = activeObjList.begin(); iter != activeObjList.end();iter++)
+	{
+		(*iter)->LateUpdate();
+	}
 	Invalidate();
 }
 
@@ -160,13 +246,23 @@ void TankGameScene::DetectCollision()
 	{
 		for (auto fiter = floorCol.begin(); fiter != floorCol.end(); fiter++)
 		{
-			int xout = 0;
-			int yout = 0;
-			if ((*iter)->isCollide(**fiter,xout ,yout))
-			{
-				(*iter)->OnCollision((*fiter)->Tag, xout, yout, *fiter);
-				(*fiter)->OnCollision((*iter)->Tag, xout, yout, *iter);
-			}
+			(*iter)->ChkCollision(**fiter);
 		}
 	}
+
+
+	for (auto iter = floorCol.begin(); iter != floorCol.end();)
+	{
+		if ((*iter)->isActive == false)
+		{
+			iter = floorCol.erase(iter);
+		}
+		else
+		{
+			iter++;
+		}
+	}
+
+
 }
+

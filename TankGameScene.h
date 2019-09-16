@@ -7,6 +7,10 @@
 #include <list>
 #include "Block.h"
 #include "Missile.h"
+#include "PlayerTank.h"
+
+#define _DEBUG_MODE_
+
 class TankGameScene :
 	public virtual Scene
 {
@@ -26,10 +30,19 @@ protected:
 	void GenerateObjects();
 
 	// factory methods
-	void GenerateBlock(int blockImg, int xpos, int ypos);
-	void GenerateMissile(int direction, int xpos, int ypos);
+	Block* GenerateBlock(int blockImg, int xpos, int ypos);
+	Missile* GeneratePMissile();
+	Missile* GenerateEMissile(int direction, int xpos, int ypos);
+	PlayerTank* GeneratePlayerTank(int xpos, int ypos);
 	// called in update
 	void DetectCollision();
+	//
+	void LoadStage(int num);
+	int blockWidth = 0;
+	int blockHeight = 0;
+	RECT gameRect;
+
+	std::vector<std::vector<Block*>> blockMap;
 public:
 	TankGameScene();
 	~TankGameScene();
@@ -41,5 +54,12 @@ public:
 	void Init() override;
 	virtual void OnMouseClick(int x, int y, int E_MOUSE_BTN) {}
 	virtual void OnMenuMessage(WPARAM wParam) {}
+	
+	static int leftBound;
+	static int rightBound;
+	static int topBound;
+	static int bottomBound;	
 };
+
+
 

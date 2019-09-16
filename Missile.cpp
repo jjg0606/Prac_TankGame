@@ -3,16 +3,29 @@
 #include "EnumImg.h"
 #include "EnumColliderTag.h"
 #include "EnumRenderOrder.h"
+#include "TankGameScene.h"
 using namespace std;
 
-const float Missile::movingSpeed = 100.0f;
+Missile::Missile()
+{
+	Collider::isActive = false;
+	unordered_map<int, Image*>& imgMap = *requireResource<unordered_map<int, Image*>>("imgmap");
+	explodeImgVec.push_back(imgMap[EXPLOSION_0]);
+	explodeImgVec.push_back(imgMap[EXPLOSION_1]);
+	explodeImgVec.push_back(imgMap[EXPLOSION_2]);
+	ImageRenderer::SetTransparent(RGB(255, 0, 255));
+}
 
-Missile::Missile(int direction, int x, int y)
+Missile::Missile(int direction, int x, int y,bool isPlayers)
 	: direction(direction)
 {
-	GameObject::isActive = false;
+	GameObject::isActive = true;
 	unordered_map<int, Image*>& imgMap = *requireResource<unordered_map<int, Image*>>("imgmap");
-	Image* curImg = nullptr;
+	curImg = nullptr;
+	explodeImgVec.push_back(imgMap[EXPLOSION_0]);
+	explodeImgVec.push_back(imgMap[EXPLOSION_1]);
+	explodeImgVec.push_back(imgMap[EXPLOSION_2]);
+
 	switch (direction)
 	{
 	case D_UP:
@@ -31,19 +44,45 @@ Missile::Missile(int direction, int x, int y)
 		curImg = imgMap[MISSILE_UP];
 		break;
 	}
+	ImageRenderer::Init(curImg, RGB(255, 0, 255),ORDER_TANK);
+	int colTag = isPlayers ? COL_TAG_P_MISSILE : COL_TAG_E_MISSILE;
+	RectCollider::Init(x, y, curImg->bmWidth, curImg->bmHeight, colTag);	
+}
 
-	SetImg(curImg);
-	ImageRenderer::SetTransparent(RGB(255, 0, 255));
-
-	int width = curImg->bmWidth;
+void Missile::Init(int direction, int x, int y, bool isPlayers)
+{
+	this->direction = direction;
+	unordered_map<int, Image*>& imgMap = *requireResource<unordered_map<int, Image*>>("imgmap");
+	curImg = nullptr;
+	switch (direction)
+	{
+	case D_UP:
+		curImg = imgMap[MISSILE_UP];
+		break;
+	case D_DOWN:
+		curImg = imgMap[MISSILE_DOWN];
+		break;
+	case D_LEFT:
+		curImg = imgMap[MISSILE_LEFT];
+		break;
+	case D_RIGHT:
+		curImg = imgMap[MISSILE_RIGHT];
+		break;
+	default:
+		curImg = imgMap[MISSILE_UP];
+		break;
+	}
 	int height = curImg->bmHeight;
+	int width = curImg->bmWidth;
 
-	SetRectCollider(x, y, x + width, y + height);
-	Collider::Tag = COL_TAG_MISSILE;
-	RectCollider::render = new RectRenderer();
-	RectCollider::render->SetWidthHeight(width, height);
-	Renderer::zIndex = ORDER_TANK;
-
+	int colTag = isPlayers ? COL_TAG_P_MISSILE : COL_TAG_E_MISSILE;
+	RectCollider::Init(x-width/2, y-height/2, curImg->bmWidth, curImg->bmHeight, colTag);
+	Collider::isActive = true;
+	ImageRenderer::SetImg(curImg);
+	ImageRenderer::SetPosition(vertexInfo[0].x, vertexInfo[0].y);
+	isExploded = false;
+	animCounter = 0.0f;
+	exImgIndex = 0;
 }
 
 void Missile::OnCollision(int destTag, int xpos, int ypos, Collider* destCol)
@@ -58,6 +97,11 @@ void Missile::Start()
 
 void Missile::Update()
 {
+	if (isExploded || Collider::isActive == false)
+	{
+		return;
+	}
+
 	float dx = 0.0f;
 	float dy = 0.0f;
 	switch (direction)
@@ -79,4 +123,90 @@ void Missile::Update()
 	Collider::MoveDelta(dx, dy);
 	ImageRenderer::SetPosition(vertexInfo[0].x, vertexInfo[0].y);
 	
+}
+
+
+void Missile::LateUpdate()
+{
+	if (Collider::isActive == false)
+	{
+		return;
+	}
+	if (isOutOfBoundary())
+	{
+		isExploded = true;
+	}
+
+	if (!isExploded)
+	{
+		return;
+	}
+
+	if (!isPositionSet)
+	{
+		SetExplosion();
+	}
+
+	animCounter += getDeltaTime().count();
+	if (animCounter >= animLimit)
+	{
+		animCounter -= animLimit;
+		exImgIndex++;
+	}
+
+	if (exImgIndex >= explodeImgVec.size())
+	{
+		Collider::isActive = false;
+		return;
+	}
+
+	ImageRenderer::SetImg(explodeImgVec[exImgIndex]);
+}
+
+void Missile::SendMsg(int code)
+{
+	switch (code)
+	{
+	case 1:
+		isExploded = true;
+		break;
+	default:
+		break;
+	}
+}
+
+void Missile::SetExplosion()
+{
+	
+	int width = explodeImgVec.front()->bmWidth;
+	int height = explodeImgVec.front()->bmHeight;
+	RectCollider::MoveDelta(-width / 2, -height / 2);
+	ImageRenderer::SetPosition(vertexInfo[0].x, vertexInfo[0].y);
+	exImgIndex = 0;
+	
+	Missile::Tag = COL_TAG_PASS;
+	isPositionSet = true;
+}
+
+void Missile::Render(HDC hdc)
+{
+	if (Collider::isActive)
+	{
+		ImageRenderer::Render(hdc);
+	}
+}
+
+bool Missile::isOutOfBoundary()
+{
+	int left = vertexInfo[0].x;
+	int top = vertexInfo[0].y;
+	int width = curImg->bmWidth;
+	int height = curImg->bmHeight;
+
+	if (left < TankGameScene::leftBound || top < TankGameScene::topBound
+		|| TankGameScene::rightBound < left + width || TankGameScene::bottomBound < top + height)
+	{
+		return true;
+	}
+	return false;
 }

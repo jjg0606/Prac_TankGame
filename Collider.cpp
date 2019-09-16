@@ -1,6 +1,6 @@
 #include "Collider.h"
 #include <math.h>
-
+#include "Line.h"
 using namespace std;
 
 std::vector<Vector2D<int>>& Collider::getVertexInfo()
@@ -127,4 +127,65 @@ bool Collider::isCollide(Collider& dest, int& xposOut, int& yposOut)
 		return false;		
 	}
 	return true;	
+}
+
+void Collider::ChkCollision(Collider& dest)
+{
+	if (!this->isActive || !dest.isActive)
+	{
+		return;
+	}
+
+	if (!MinMaxTest(dest))
+	{
+		return;
+	}
+
+	for (int i = 0; i < dest.vertexInfo.size(); i++)
+	{
+		if (this->IsIncluded(dest.vertexInfo[i]))
+		{
+			this->OnCollision(dest.Tag, dest.vertexInfo[i].x, dest.vertexInfo[i].y, &dest);
+			dest.OnCollision(this->Tag, dest.vertexInfo[i].x, dest.vertexInfo[i].y, this);
+			return;
+		}
+	}
+
+	for (int i = 0; i < vertexInfo.size(); i++)
+	{
+		if (dest.IsIncluded(vertexInfo[i]))
+		{
+			this->OnCollision(dest.Tag, vertexInfo[i].x, vertexInfo[i].y, &dest);
+			dest.OnCollision(this->Tag, vertexInfo[i].x, vertexInfo[i].y, this);
+			return;
+		}
+	}
+}
+
+
+
+
+bool Collider::IsIncluded(Vector2D<int> pos)
+{
+	static const float pi = 3.141592f;
+	float angleSum = 0.0f;
+	for (int i = 0; i < vertexInfo.size(); i++)
+	{
+		int next = (i + 1) % vertexInfo.size();
+		Vector2D<int> v1 = vertexInfo[i] - pos;
+		Vector2D<int> v2 = vertexInfo[next] - pos;
+
+		int inpro = v1 * v2;
+		float size = sqrtf(v1.x * v1.x + v1.y * v1.y) * sqrtf(v2.x * v2.x + v2.y * v2.y);
+		angleSum += acosf(inpro / size);
+	}
+
+	return angleSum > 1.9f * pi ? true : false;
+}
+
+bool Collider::IsLineMeet(Vector2D<int> lp1, Vector2D<int> lp2, Vector2D<int> rp1, Vector2D<int> rp2)
+{
+	Line l1(lp1, lp2);
+	Line l2(rp1, rp2);
+	return l1.isMeet(l2);
 }

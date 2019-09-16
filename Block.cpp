@@ -1,6 +1,7 @@
 #include "Block.h"
 #include "EnumImg.h"
 #include "EnumRenderOrder.h"
+#include "Missile.h"
 using namespace std;
 
 Block::Block(int BlockState, int x, int y, int width, int height)
@@ -33,7 +34,7 @@ Block::Block(int BlockState, int x, int y, int width, int height)
 		break;
 	case SEA:
 		type = BlockType::SEA;
-		SetInnerState(D_NONE);
+		SetInnerState(D_FULL);
 		break;
 	case FOREST:
 		type = BlockType::FOREST;
@@ -170,41 +171,70 @@ void Block::SetInnerState(int Direction)
 				continue;
 			}
 			innerState[r][c] = 1;
+			cntActiveBlock++;
 		}
 	}	
 }
 
 void Block::OnCollision(int destTag, int xpos, int ypos, Collider* destCol)
 {
-	xpos -= vertexInfo[0].x;
-	ypos -= vertexInfo[0].y;
-	int width = vertexInfo[2].x - vertexInfo[0].x;
-	int heigth = vertexInfo[2].y - vertexInfo[0].y;
-	xpos /= (width * 0.25);
-	ypos /= (heigth * 0.25);
-
-	if (xpos < 0 || xpos >= 4 || ypos < 0 || ypos >= 4)
+	if (cntActiveBlock == 0)
 	{
 		return;
 	}
 
-	if (innerState[ypos][xpos] == 0)
-	{
-		return;
-	}
+	int dxmin;
+	int dxmax;
+	int dymin;
+	int dymax;
+	destCol->getMinMax(dxmin, dxmax, dymin, dymax);
+	dxmin -= vertexInfo[0].x;
+	dxmax -= vertexInfo[0].x;
+	dymin -= vertexInfo[0].y;
+	dymax -= vertexInfo[0].y;
+	int dx = (vertexInfo[2].x - vertexInfo[0].x) / 4;
+	int dy = (vertexInfo[2].y - vertexInfo[0].y) / 4;
 
+	for (int r = 0; r < 4 ; r++)
+	{
+		for (int c = 0; c < 4; c++)
+		{
+			if (innerState[r][c] == 0 || dx*(c+1) <dxmin || dx*c > dxmax || dy*(r+1) < dymin || dy*(r) > dymax)
+			{
+				continue;
+			}
+			HandleColl(r, c, destTag,destCol);
+		}
+	}	
+}
+
+void Block::HandleColl(int row, int col, int destTag, Collider* destCol)
+{
 	// TODO
-	if (type == BlockType::EAGLE)
+	if (destTag == COL_TAG_P_TANK || destTag == COL_TAG_E_TANK)
 	{
-
+		destCol->SendMsg(1); // go back
 	}
-	else if (type == BlockType::ADVANCED)
+	else if (destTag == COL_TAG_P_MISSILE || destTag == COL_TAG_E_MISSILE)
 	{
-
-	}
-	else if (type == BlockType::NORMAL)
-	{
-		innerState[ypos][xpos] = 0;
+		if (type == BlockType::EAGLE)
+		{
+			// game over
+		}
+		else if (type == BlockType::ADVANCED)
+		{
+			destCol->SendMsg(1);
+		}
+		else if (type == BlockType::NORMAL && (destTag == COL_TAG_E_MISSILE || destTag == COL_TAG_P_MISSILE))
+		{
+			innerState[row][col] = 0;
+			cntActiveBlock--;
+			if (cntActiveBlock == 0)
+			{
+				Collider::isActive = false;
+			}
+			destCol->SendMsg(1);
+		}
 	}
 }
 
@@ -219,6 +249,7 @@ void Block::Render(HDC hdc)
 		ImageRenderer::Render(hdc);
 		return;
 	}
+	Camera* maincam = getMainCam();
 	SelectObject(getMemDC(), img->handle);
 	float dc = img->bmWidth / 4.0f;
 	float dh = img->bmHeight / 4.0f;
@@ -230,7 +261,7 @@ void Block::Render(HDC hdc)
 			{
 				continue;
 			}
-			TransparentBlt(hdc, position.x + c * dc, position.y + r * dh, dc, dh, getMemDC(), c*dc, r*dh, dc, dh, transparent);			
+			TransparentBlt(hdc, position.x + c * dc - maincam->left , position.y + r * dh - maincam->top, dc, dh, getMemDC(), c*dc, r*dh, dc, dh, transparent);			
 		}
 	}
 

@@ -9,6 +9,18 @@ Camera::Camera(int left, int top, int width, int height)
 	bottomEnd = 2000000000;
 }
 
+void Camera::Init(int left, int top, int width, int height)
+{
+	leftEnd = -2000000000;
+	rightEnd = 2000000000;
+	topEnd = -2000000000;
+	bottomEnd = 2000000000;
+	this->left = left;
+	this->top = top;
+	this->right = left + width;
+	this->bottom = top + height;
+}
+
 void Camera::chkEndPoint()
 {
 	int width = right - left;

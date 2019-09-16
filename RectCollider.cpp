@@ -8,6 +8,25 @@ RectCollider::RectCollider(int left, int top, int width, int height, int tag)
 	render->SetWidthHeight(width, height);
 }
 
+void RectCollider::Init(int left, int top, int width, int height, int tag)
+{
+	Collider::Tag = tag;
+	SetRectCollider(left, top, left + width, top + height);
+
+	if (render != nullptr)
+	{
+		render->SetPosition(left, top);
+		render->SetWidthHeight(width, height);
+	}
+	else
+	{
+		render = new RectRenderer();
+		render->SetWidthHeight(width, height);
+	}
+
+	
+}
+
 bool RectCollider::getMinMax(int& xmin, int& xmax, int& ymin, int& ymax)
 {
 	if (vertexInfo.size() != 4)
@@ -19,6 +38,7 @@ bool RectCollider::getMinMax(int& xmin, int& xmax, int& ymin, int& ymax)
 	xmax = vertexInfo[2].x;
 	ymin = vertexInfo[0].y;
 	ymax = vertexInfo[2].y;
+	return true;
 }
 
 void RectCollider::DrawCollider(HDC hdc)
@@ -35,4 +55,16 @@ void RectCollider::DrawCollider(HDC hdc)
 RectCollider::~RectCollider()
 {
 	delete render;
+}
+
+void RectCollider::SetWidthHeight(int width, int height)
+{
+	if (vertexInfo.size() != 4)
+	{
+		return;
+	}
+
+	vertexInfo[1] = vertexInfo[0] + Vector2D<int>{width, 0};
+	vertexInfo[2] = vertexInfo[0] + Vector2D<int>{width, height};
+	vertexInfo[3] = vertexInfo[0] + Vector2D<int>{0, height};
 }
