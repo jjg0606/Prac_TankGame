@@ -3,6 +3,7 @@
 #include "EnumImg.h"
 #include "EnumColliderTag.h"
 #include "EnumRenderOrder.h"
+#include "EnumColMsg.h"
 #include "TankGameScene.h"
 using namespace std;
 
@@ -14,6 +15,7 @@ Missile::Missile()
 	explodeImgVec.push_back(imgMap[EXPLOSION_1]);
 	explodeImgVec.push_back(imgMap[EXPLOSION_2]);
 	ImageRenderer::SetTransparent(RGB(255, 0, 255));
+	Collider::isContinuous = true;
 }
 
 Missile::Missile(int direction, int x, int y,bool isPlayers)
@@ -46,7 +48,7 @@ Missile::Missile(int direction, int x, int y,bool isPlayers)
 	}
 	ImageRenderer::Init(curImg, RGB(255, 0, 255),ORDER_TANK);
 	int colTag = isPlayers ? COL_TAG_P_MISSILE : COL_TAG_E_MISSILE;
-	RectCollider::Init(x, y, curImg->bmWidth, curImg->bmHeight, colTag);	
+	RectCollider::Init(x, y, curImg->bmWidth, curImg->bmHeight, colTag,true);	
 }
 
 void Missile::Init(int direction, int x, int y, bool isPlayers)
@@ -76,16 +78,17 @@ void Missile::Init(int direction, int x, int y, bool isPlayers)
 	int width = curImg->bmWidth;
 
 	int colTag = isPlayers ? COL_TAG_P_MISSILE : COL_TAG_E_MISSILE;
-	RectCollider::Init(x-width/2, y-height/2, curImg->bmWidth, curImg->bmHeight, colTag);
+	RectCollider::Init(x, y, curImg->bmWidth, curImg->bmHeight, colTag);
 	Collider::isActive = true;
 	ImageRenderer::SetImg(curImg);
 	ImageRenderer::SetPosition(vertexInfo[0].x, vertexInfo[0].y);
 	isExploded = false;
 	animCounter = 0.0f;
 	exImgIndex = 0;
+	MoveDelta(0, 0);
 }
 
-void Missile::OnCollision(int destTag, int xpos, int ypos, Collider* destCol)
+void Missile::OnCollision(Collider* destCol)
 {
 
 }
@@ -167,8 +170,9 @@ void Missile::SendMsg(int code)
 {
 	switch (code)
 	{
-	case 1:
+	case COL_MSG_MISSILE_EXPLODE:
 		isExploded = true;
+		Collider::Tag = COL_TAG_PASS;
 		break;
 	default:
 		break;

@@ -132,7 +132,8 @@ void TankGameScene::LoadStage(int num)
 	fis.close();
 	GeneratePlayerTank(leftBound + 4 * blockWidth, topBound + 12 * blockHeight);
 	GeneratePMissile();
-	
+	GenerateEnemyTank(leftBound, topBound);
+	GenerateEnemyTank(leftBound + 12 * blockWidth, topBound);
 }
 
 void TankGameScene::Release()
@@ -225,6 +226,22 @@ PlayerTank* TankGameScene::GeneratePlayerTank(int xpos, int ypos)
 	return ptank;
 }
 
+EnemyTank* TankGameScene::GenerateEnemyTank(int xpos, int ypos)
+{
+	Missile* mi = new Missile();
+	EnemyTank* etank = new EnemyTank(xpos, ypos,mi);
+	etank->Start();
+
+	activeObjList.push_back(mi);
+	renderMap.insert(make_pair(mi->zIndex, mi));
+	colList.push_back(mi);
+
+	activeObjList.push_back(etank);
+	renderMap.insert(make_pair(etank->zIndex, etank));
+	colList.push_back(etank);
+	return etank;
+}
+
 void TankGameScene::Update()
 {
 	for (auto iter = activeObjList.begin(); iter != activeObjList.end(); iter++)
@@ -247,6 +264,12 @@ void TankGameScene::DetectCollision()
 		for (auto fiter = floorCol.begin(); fiter != floorCol.end(); fiter++)
 		{
 			(*iter)->ChkCollision(**fiter);
+		}
+		auto itnext = iter++;
+		iter--;
+		for (; itnext != colList.end(); itnext++)
+		{
+			(*iter)->ChkCollision(**itnext);
 		}
 	}
 

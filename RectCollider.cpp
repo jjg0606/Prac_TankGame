@@ -2,10 +2,11 @@
 
 RectCollider::RectCollider(int left, int top, int width, int height, int tag)
 {
-	Collider::Tag = tag;
+	RectCollider::Init(left, top, width, height, tag);
+	/*Collider::Tag = tag;
 	SetRectCollider(left, top, left + width, top + height);
 	render = new RectRenderer();
-	render->SetWidthHeight(width, height);
+	render->SetWidthHeight(width, height);*/
 }
 
 void RectCollider::Init(int left, int top, int width, int height, int tag)
@@ -25,6 +26,12 @@ void RectCollider::Init(int left, int top, int width, int height, int tag)
 	}
 
 	
+}
+
+void RectCollider::Init(int left, int top, int width, int height, int tag, bool isContinuous)
+{
+	RectCollider::Init(left, top, width, height, tag);
+	Collider::isContinuous = isContinuous;
 }
 
 bool RectCollider::getMinMax(int& xmin, int& xmax, int& ymin, int& ymax)
@@ -68,3 +75,4 @@ void RectCollider::SetWidthHeight(int width, int height)
 	vertexInfo[2] = vertexInfo[0] + Vector2D<int>{width, height};
 	vertexInfo[3] = vertexInfo[0] + Vector2D<int>{0, height};
 }
+

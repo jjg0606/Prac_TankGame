@@ -30,7 +30,7 @@ private:
 	bool hasShot = false;
 public:
 	PlayerTank(int xpos, int ypos);
-	void OnCollision(int destTag, int xpos, int ypos, Collider* destCol) override;
+	void OnCollision(Collider* destCol) override;
 	virtual void Update() override;
 	virtual void LateUpdate() override;
 	virtual void Start() override;

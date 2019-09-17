@@ -22,6 +22,7 @@ public:
 	//virtual void OnCollision(int destTag, int xpos, int ypos) {};
 	RectCollider(int left, int top, int width, int height,int tag);
 	void Init(int left, int top, int width, int height, int tag);
+	void Init(int left, int top, int width, int height, int tag, bool isContinuous);
 	RectCollider() = default;
 	~RectCollider();
 };

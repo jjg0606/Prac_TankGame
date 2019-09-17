@@ -1,6 +1,7 @@
 #include "PlayerTank.h"
 #include "EnumImg.h"
 #include "EnumRenderOrder.h"
+#include "EnumColMsg.h"
 #include "Missile.h"
 #include "TankGameScene.h"
 using namespace std;
@@ -31,7 +32,7 @@ PlayerTank::PlayerTank(int xpos, int ypos)
 	
 }
 
-void PlayerTank::OnCollision(int destTag, int xpos, int ypos, Collider* destCol)
+void PlayerTank::OnCollision(Collider* destCol)
 {
 
 }
@@ -141,14 +142,14 @@ void PlayerTank::ShotSequence()
 		break;
 	case D_DOWN:
 		fireX = position.x + width / 2;
-		fireY = position.y + height;
+		fireY = position.y + height*0.8f;
 		break;
 	case D_LEFT:
 		fireX = position.x;
 		fireY = position.y + height / 2;
 		break;
 	case D_RIGHT:
-		fireX = position.x + width;
+		fireX = position.x + width*0.8f;
 		fireY = position.y + height / 2;
 		break;
 	}
@@ -166,7 +167,7 @@ void PlayerTank::SendMsg(int code)
 {
 	switch (code)
 	{
-	case 1:
+	case COL_MSG_TANK_GO_BACK:
 		haveToGoingBack = true;
 		break;
 	}

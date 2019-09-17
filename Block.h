@@ -17,10 +17,13 @@ class Block
 	std::vector<std::vector<int>> innerState;
 	void SetInnerState(int Direction);
 	int cntActiveBlock = 0;
-	void HandleColl(int row,int col, int destTag, Collider* destCol);
+	void HandleMissileCollision(Collider* col);
+	void HandleTankCollision(Collider* col);
+	void HandleNormalBlockCollision(Collider* col);
+	int between(int origin, int min, int max);
 public:
 	Block(int BlockState,int x,int y,int width,int height);
-	void OnCollision(int destTag, int xpos, int ypos, Collider* destCol) override;
+	void OnCollision(Collider* destCol) override;
 	virtual void Render(HDC hdc) override;
 	virtual void Start() override;
 };

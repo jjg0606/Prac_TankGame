@@ -111,6 +111,9 @@
     <ClCompile Include="Line.cpp">
       <Filter>소스 파일\Core\Struct</Filter>
     </ClCompile>
+    <ClCompile Include="EnemyTank.cpp">
+      <Filter>소스 파일\TankGame\GameObject</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="WndBase.h">
@@ -187,6 +190,12 @@
     </ClInclude>
     <ClInclude Include="Line.h">
       <Filter>헤더 파일\Core\Struct</Filter>
+    </ClInclude>
+    <ClInclude Include="EnumColMsg.h">
+      <Filter>헤더 파일\TankGame\Enum</Filter>
+    </ClInclude>
+    <ClInclude Include="EnemyTank.h">
+      <Filter>헤더 파일\TankGame\GameObject</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

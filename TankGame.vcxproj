@@ -142,6 +142,7 @@
     <ClCompile Include="Block.cpp" />
     <ClCompile Include="Camera.cpp" />
     <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="EnemyTank.cpp" />
     <ClCompile Include="GameObject.cpp" />
     <ClCompile Include="Image.cpp" />
     <ClCompile Include="ImageRenderer.cpp" />
@@ -161,9 +162,11 @@
     <ClInclude Include="Block.h" />
     <ClInclude Include="Camera.h" />
     <ClInclude Include="Collider.h" />
+    <ClInclude Include="EnemyTank.h" />
     <ClInclude Include="EnumBlockState.h" />
     <ClInclude Include="EnumBlockType.h" />
     <ClInclude Include="EnumColliderTag.h" />
+    <ClInclude Include="EnumColMsg.h" />
     <ClInclude Include="EnumDirection.h" />
     <ClInclude Include="EnumImg.h" />
     <ClInclude Include="EnumMouse.h" />

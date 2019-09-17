@@ -8,6 +8,7 @@
 class Missile
 	: virtual public GameObject, virtual public RectCollider,virtual public ImageRenderer
 {
+	//const float movingSpeed = 500.0f;
 	const float movingSpeed = 500.0f;
 	int direction;
 	bool isExploded = false;
@@ -19,11 +20,12 @@ class Missile
 	bool isPositionSet = false;
 	void SetExplosion();
 	bool isOutOfBoundary();
+
 public:
 	Missile(int direction, int x, int y, bool isPlayers);
 	void Init(int direction, int x, int y,bool isPlayers);
 	Missile();
-	void OnCollision(int destTag, int xpos, int ypos, Collider* destCol) override;
+	void OnCollision(Collider* destCol) override;
 	void Start() override;
 	void Update() override;
 	void LateUpdate() override;

@@ -2,6 +2,7 @@
 #include "EnumImg.h"
 #include "EnumRenderOrder.h"
 #include "Missile.h"
+#include "EnumColMsg.h"
 using namespace std;
 
 Block::Block(int BlockState, int x, int y, int width, int height)
@@ -176,18 +177,34 @@ void Block::SetInnerState(int Direction)
 	}	
 }
 
-void Block::OnCollision(int destTag, int xpos, int ypos, Collider* destCol)
+void Block::OnCollision(Collider* destCol)
 {
 	if (cntActiveBlock == 0)
 	{
 		return;
 	}
+	switch (destCol->Tag)
+	{
+	case COL_TAG_P_TANK:
+		HandleTankCollision(destCol);
+		break;
+	case COL_TAG_P_MISSILE:
+		// falling through
+	case COL_TAG_E_MISSILE:
+		HandleMissileCollision(destCol);
+		break;
+	}
 
+
+}
+
+void Block::HandleTankCollision(Collider* col)
+{
 	int dxmin;
 	int dxmax;
 	int dymin;
 	int dymax;
-	destCol->getMinMax(dxmin, dxmax, dymin, dymax);
+	col->getMinMax(dxmin, dxmax, dymin, dymax);
 	dxmin -= vertexInfo[0].x;
 	dxmax -= vertexInfo[0].x;
 	dymin -= vertexInfo[0].y;
@@ -195,47 +212,191 @@ void Block::OnCollision(int destTag, int xpos, int ypos, Collider* destCol)
 	int dx = (vertexInfo[2].x - vertexInfo[0].x) / 4;
 	int dy = (vertexInfo[2].y - vertexInfo[0].y) / 4;
 
-	for (int r = 0; r < 4 ; r++)
+	for (int r = 0; r < 4; r++)
 	{
 		for (int c = 0; c < 4; c++)
 		{
-			if (innerState[r][c] == 0 || dx*(c+1) <dxmin || dx*c > dxmax || dy*(r+1) < dymin || dy*(r) > dymax)
+			if (innerState[r][c] == 0 || dx * (c + 1) < dxmin || dx * c > dxmax || dy * (r + 1) < dymin || dy * (r) > dymax)
 			{
 				continue;
 			}
-			HandleColl(r, c, destTag,destCol);
+			col->SendMsg(COL_MSG_TANK_GO_BACK);
+			return;
 		}
-	}	
+	}
 }
 
-void Block::HandleColl(int row, int col, int destTag, Collider* destCol)
+void Block::HandleMissileCollision(Collider* col)
 {
-	// TODO
-	if (destTag == COL_TAG_P_TANK || destTag == COL_TAG_E_TANK)
+	if (this->type == BlockType::EAGLE)
 	{
-		destCol->SendMsg(1); // go back
+		col->SendMsg(COL_MSG_MISSILE_EXPLODE);
+		// game over method
 	}
-	else if (destTag == COL_TAG_P_MISSILE || destTag == COL_TAG_E_MISSILE)
+	else if (this->type == BlockType::ADVANCED)
 	{
-		if (type == BlockType::EAGLE)
+		col->SendMsg(COL_MSG_MISSILE_EXPLODE);
+	}
+	else if (this->type == BlockType::NORMAL)
+	{
+		HandleNormalBlockCollision(col);
+	}
+
+	if (cntActiveBlock <= 0)
+	{
+		Collider::isActive = false;
+	}
+}
+
+void Block::HandleNormalBlockCollision(Collider* col)
+{
+
+	Vector2D<int> colVec = col->getDelta();
+	int ColDirection = D_NONE;
+	if (colVec.y == 0)
+	{
+		if (colVec.x > 0)
 		{
-			// game over
+			ColDirection = D_RIGHT;
 		}
-		else if (type == BlockType::ADVANCED)
+		else
 		{
-			destCol->SendMsg(1);
+			ColDirection = D_LEFT;
 		}
-		else if (type == BlockType::NORMAL && (destTag == COL_TAG_E_MISSILE || destTag == COL_TAG_P_MISSILE))
+	}
+	else if (colVec.x == 0)
+	{
+		if (colVec.y < 0)
 		{
-			innerState[row][col] = 0;
-			cntActiveBlock--;
-			if (cntActiveBlock == 0)
+			ColDirection = D_UP;
+		}
+		else
+		{
+			ColDirection = D_DOWN;
+		}
+	}
+
+	int dxmin,dxmax,dymin,dymax;
+	col->getMinMax(dxmin, dxmax, dymin, dymax);
+
+	dxmin -= vertexInfo[0].x;
+	dxmax -= vertexInfo[0].x;
+	dymin -= vertexInfo[0].y;
+	dymax -= vertexInfo[0].y;
+
+	int dx = (vertexInfo[2].x - vertexInfo[0].x) / 4;
+	int dy = (vertexInfo[2].y - vertexInfo[0].y) / 4;
+
+	int rowStart = 0;
+	int rowEnd = 0;
+	int colStart = 0;
+	int colEnd = 0;
+	bool isRowFirst = true;
+
+	switch (ColDirection)
+	{
+	case D_NONE:
+		return;
+	case D_UP:
+		isRowFirst = true;
+		rowStart = 3;
+		rowEnd = dymin/dy;
+		colStart = (dxmin / dx) - 1;
+		colEnd = (dxmax / dx) + 1;
+		break;
+	case D_DOWN:
+		isRowFirst = true;
+		rowStart = 0;
+		rowEnd = dymax / dy;
+		colStart = (dxmin / dx) - 1;
+		colEnd = (dxmax / dx) + 1;
+		break;
+	case D_RIGHT:
+		isRowFirst = false;
+		colStart = 0;
+		colEnd = dxmax /dx;
+		rowStart = (dymin / dy) -1 ;
+		rowEnd = (dymax / dy) +1;
+		break;
+	case D_LEFT:
+		isRowFirst = false;
+		colStart = 3;
+		colEnd = dxmin / dx;
+		rowStart = (dymin / dy) - 1;
+		rowEnd = (dymax / dy) + 1;
+		break;
+	}
+
+	colStart = between(colStart, 0, 3);
+	colEnd = between(colEnd, 0, 3);
+	rowStart = between(rowStart, 0, 3);
+	rowEnd = between(rowEnd, 0, 3);
+
+	if (isRowFirst)
+	{
+		for (int r = rowStart;; r += rowStart < rowEnd ? 1 : -1)
+		{
+			if (((rowStart < rowEnd) && (r > rowEnd)) || ((rowStart >= rowEnd) && (r < rowEnd)))
 			{
-				Collider::isActive = false;
+				break;
 			}
-			destCol->SendMsg(1);
+			bool isBlocked = false;
+			for (int c = colStart; c <= colEnd; c++)
+			{
+				if (innerState[r][c] == 1)
+				{
+					isBlocked = true;
+					innerState[r][c] = 0;
+					cntActiveBlock--;
+				}
+			}
+			if (isBlocked)
+			{
+				col->SendMsg(COL_MSG_MISSILE_EXPLODE);
+				break;
+			}
 		}
 	}
+	else
+	{
+		for (int c = colStart;; c += colStart < colEnd ? 1 : -1)
+		{
+			if (((colStart < colEnd) && (c > colEnd)) || ((colStart >= colEnd) && (c < colEnd)))
+			{
+				break;
+			}
+			bool isBlocked = false;
+			for (int r = rowStart; r <= rowEnd; r++)
+			{
+				if (innerState[r][c] == 1)
+				{
+					isBlocked = true;
+					innerState[r][c] = 0;
+					cntActiveBlock--;
+				}
+			}
+			if (isBlocked)
+			{
+				col->SendMsg(COL_MSG_MISSILE_EXPLODE);
+				break;
+			}
+		}
+	}
+
+
+}
+
+int Block::between(int origin, int min, int max)
+{
+	if (origin < min)
+	{
+		return min;
+	}
+	if (origin > max)
+	{
+		return max;
+	}
+	return origin;
 }
 
 void Block::Render(HDC hdc)

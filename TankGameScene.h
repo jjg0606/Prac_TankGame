@@ -8,6 +8,7 @@
 #include "Block.h"
 #include "Missile.h"
 #include "PlayerTank.h"
+#include "EnemyTank.h"
 
 #define _DEBUG_MODE_
 
@@ -34,6 +35,7 @@ protected:
 	Missile* GeneratePMissile();
 	Missile* GenerateEMissile(int direction, int xpos, int ypos);
 	PlayerTank* GeneratePlayerTank(int xpos, int ypos);
+	EnemyTank* GenerateEnemyTank(int xpos, int ypos);
 	// called in update
 	void DetectCollision();
 	//

@@ -52,34 +52,63 @@ bool Collider::MinMaxTest(Collider& dest)
 	return true;
 }
 
-bool Collider::InclusionTest(Collider& dest, int& xout,int& yout)
+bool Collider::MeetTest(Collider& dest)
 {
-	static float pi = 3.141592f;
-	vector<Vector2D<int>>& destVertex = dest.getVertexInfo();
-
 	for (int i = 0; i < vertexInfo.size(); i++)
 	{
-		float angleSum = 0.0f;
-		for (int j = 0; j < destVertex.size(); j++)
+		int inext = (i + 1) % vertexInfo.size();
+		Line lorigin(vertexInfo[i], vertexInfo[inext]);
+		for (int j = 0; j < dest.vertexInfo.size(); j++)
 		{
-			Vector2D<int> v1 = destVertex[j] - vertexInfo[i];
-			int second = (j + 1) % destVertex.size();
-			Vector2D<int> v2 = destVertex[second] - vertexInfo[i];
-
-			int inpro = v1 * v2;
-			float size = sqrtf(v1.x * v1.x + v1.y * v1.y) * sqrtf(v2.x * v2.x + v2.y * v2.y);
-			angleSum += acosf(inpro / size);
-		}
-
-		if (angleSum > 1.9 * pi)
-		{
-			xout = vertexInfo[i].x;
-			yout = vertexInfo[i].y;
-			return true;
+			int jnext = (j + 1) % dest.vertexInfo.size();
+			Line ldest(dest.vertexInfo[j], dest.vertexInfo[jnext]);
+			if (lorigin.isMeet(ldest))
+			{
+				this->OnCollision(&dest);
+				dest.OnCollision(this);
+				return true;
+			}
 		}
 	}
 	return false;
 }
+
+bool Collider::ContinuTest(Collider& dest)
+{
+	Vector2D<int> delta = getDelta();
+	for (int i = 0; i < vertexInfo.size(); i++)
+	{		
+		Line lorigin(vertexInfo[i], vertexInfo[i] - delta);
+
+		for (int j = 0; j < dest.vertexInfo.size(); j++)
+		{
+			int jnext = j + 1 < dest.vertexInfo.size() ? j + 1 : 0;
+			Line ldest(dest.vertexInfo[j], dest.vertexInfo[jnext]);
+			if (lorigin.isMeet(ldest))
+			{
+				this->OnCollision(&dest);
+				dest.OnCollision(this);
+				return true;
+			}
+		}
+	}
+	return false;
+}
+
+bool Collider::InclusionTest(Collider& dest)
+{
+	for (int i = 0; i < dest.vertexInfo.size(); i++)
+	{
+		if (this->IsIncluded(dest.vertexInfo[i]))
+		{
+			this->OnCollision(&dest);
+			dest.OnCollision(this);
+			return true;
+		}
+	}	
+	return false;
+}
+
 
 void Collider::SetRectCollider(int left, int top, int right, int bottom)
 {
@@ -92,6 +121,7 @@ void Collider::SetRectCollider(int left, int top, int right, int bottom)
 
 void Collider::MoveDelta(int dx, int dy)
 {
+	deltaVec = Vector2D<int>{ dx,dy };
 	for (int i = 0; i < vertexInfo.size(); i++)
 	{
 		vertexInfo[i].x += dx;
@@ -116,19 +146,6 @@ void Collider::DrawCollider(HDC hdc)
 
 }
 
-bool Collider::isCollide(Collider& dest, int& xposOut, int& yposOut)
-{
-	if (!MinMaxTest(dest))
-	{
-		return false;
-	}
-	if (!InclusionTest(dest, xposOut, yposOut) && !dest.InclusionTest(*this, xposOut, yposOut))
-	{
-		return false;		
-	}
-	return true;	
-}
-
 void Collider::ChkCollision(Collider& dest)
 {
 	if (!this->isActive || !dest.isActive)
@@ -136,30 +153,38 @@ void Collider::ChkCollision(Collider& dest)
 		return;
 	}
 
+
+
 	if (!MinMaxTest(dest))
+	{
+		if (this->isContinuous && this->ContinuTest(dest))
+		{
+			return;
+		}
+
+		if (dest.isContinuous && dest.ContinuTest(*this))
+		{
+			return;
+		}
+		return;
+	}
+
+	if (InclusionTest(dest))
 	{
 		return;
 	}
 
-	for (int i = 0; i < dest.vertexInfo.size(); i++)
-	{
-		if (this->IsIncluded(dest.vertexInfo[i]))
-		{
-			this->OnCollision(dest.Tag, dest.vertexInfo[i].x, dest.vertexInfo[i].y, &dest);
-			dest.OnCollision(this->Tag, dest.vertexInfo[i].x, dest.vertexInfo[i].y, this);
-			return;
-		}
-	}
+	//if (dest.InclusionTest(*this))
+	//{
+	//	return;
+	//}
 
-	for (int i = 0; i < vertexInfo.size(); i++)
+	if (MeetTest(dest))
 	{
-		if (dest.IsIncluded(vertexInfo[i]))
-		{
-			this->OnCollision(dest.Tag, vertexInfo[i].x, vertexInfo[i].y, &dest);
-			dest.OnCollision(this->Tag, vertexInfo[i].x, vertexInfo[i].y, this);
-			return;
-		}
+		return;
 	}
+	   	 
+
 }
 
 
@@ -183,9 +208,7 @@ bool Collider::IsIncluded(Vector2D<int> pos)
 	return angleSum > 1.9f * pi ? true : false;
 }
 
-bool Collider::IsLineMeet(Vector2D<int> lp1, Vector2D<int> lp2, Vector2D<int> rp1, Vector2D<int> rp2)
+Vector2D<int> Collider::getDelta()
 {
-	Line l1(lp1, lp2);
-	Line l2(rp1, rp2);
-	return l1.isMeet(l2);
+	return deltaVec;
 }
