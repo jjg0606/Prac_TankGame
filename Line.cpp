@@ -64,12 +64,13 @@ bool Line::resultYParalOne(Line& dest)
 {
 	// this is pararell with Y line
 	// but dest is not
-	if (-this->cons < dest.start || -this->cons > dest.end)
+	float posX = -this->cons;
+	if (posX < dest.start || posX > dest.end)
 	{
 		return false;
 	}
 	
-	float consY = dest.getY(this->cons);
+	float consY = dest.getY(posX);
 
 	if (consY < this->start || consY > this->end)
 	{

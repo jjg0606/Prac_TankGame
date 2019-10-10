@@ -15,6 +15,7 @@ private:
 	bool MeetTest(Collider& dest);
 	bool ContinuTest(Collider& dest);
 protected:
+
 	std::vector<Vector2D<int>> vertexInfo;
 	void SetRectCollider(int left, int top, int right, int bottom);
 	void MoveDelta(int dx, int dy);

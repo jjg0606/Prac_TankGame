@@ -34,7 +34,16 @@ PlayerTank::PlayerTank(int xpos, int ypos)
 
 void PlayerTank::OnCollision(Collider* destCol)
 {
-
+	switch (destCol->Tag)
+	{
+	case COL_TAG_E_TANK:
+		haveToGoingBack = true;
+		destCol->SendMsg(COL_MSG_TANK_GO_BACK);
+		break;
+	case COL_TAG_E_MISSILE:
+		//TODO : gameend
+		break;
+	}
 }
 
 void PlayerTank::Update()
@@ -91,7 +100,7 @@ void PlayerTank::Update()
 		if (animCounter > animLimit)
 		{
 			animCounter -= animLimit;
-			imgVecIndex = (imgVecIndex + 1) % 2;
+			imgVecIndex = (imgVecIndex + 1) % imgVec[0].size();
 		}
 	}
 

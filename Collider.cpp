@@ -1,4 +1,5 @@
 #include "Collider.h"
+#include <algorithm>
 #include <math.h>
 #include "Line.h"
 using namespace std;
@@ -153,19 +154,28 @@ void Collider::ChkCollision(Collider& dest)
 		return;
 	}
 
+	bool isContinueOne = false;
 
+	if (this->isContinuous)
+	{
+		this->ContinuTest(dest);
+		isContinueOne = true;
+	}
+
+	if (dest.isContinuous)
+	{
+		dest.ContinuTest(*this);
+		isContinueOne = true;
+	}
+
+	if (isContinueOne)
+	{
+		return;
+	}
 
 	if (!MinMaxTest(dest))
 	{
-		if (this->isContinuous && this->ContinuTest(dest))
-		{
-			return;
-		}
-
-		if (dest.isContinuous && dest.ContinuTest(*this))
-		{
-			return;
-		}
+		
 		return;
 	}
 
@@ -173,11 +183,6 @@ void Collider::ChkCollision(Collider& dest)
 	{
 		return;
 	}
-
-	//if (dest.InclusionTest(*this))
-	//{
-	//	return;
-	//}
 
 	if (MeetTest(dest))
 	{
@@ -204,6 +209,7 @@ bool Collider::IsIncluded(Vector2D<int> pos)
 		float size = sqrtf(v1.x * v1.x + v1.y * v1.y) * sqrtf(v2.x * v2.x + v2.y * v2.y);
 		angleSum += acosf(inpro / size);
 	}
+
 
 	return angleSum > 1.9f * pi ? true : false;
 }

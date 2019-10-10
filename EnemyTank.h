@@ -22,14 +22,12 @@ private:
 
 	const float minDelayDirectionChange = 1.0f;
 	float timeNextDirection = 0.0f;
-	const float minDelayNextShot = 5.0f;
-	float timeNextShot = 0.0f;
 	Missile* missile;
 	bool isOutOfBoundary();
 	bool haveToGoingBack = false;
 	void setTimeNextDirection();
-	void setTimeNextShot();
-	
+	const static int Velocity = 100;
+	const static Vector2D<int> speedUnit[4];
 public:
 	EnemyTank(int xpos, int ypos, Missile* mi);
 	void OnCollision(Collider* destCol) override;

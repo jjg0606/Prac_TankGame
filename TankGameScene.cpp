@@ -15,7 +15,7 @@ TankGameScene::TankGameScene()
 {
 	RECT winRect = getWinRect();
 	mainCam = new Camera(0, 0, winRect.right, winRect.bottom);
-	
+	srand(time(NULL));
 }
 
 
@@ -265,14 +265,14 @@ void TankGameScene::DetectCollision()
 		{
 			(*iter)->ChkCollision(**fiter);
 		}
-		auto itnext = iter++;
+		iter++;
+		auto itnext = iter;
 		iter--;
 		for (; itnext != colList.end(); itnext++)
 		{
 			(*iter)->ChkCollision(**itnext);
 		}
 	}
-
 
 	for (auto iter = floorCol.begin(); iter != floorCol.end();)
 	{

@@ -52,4 +52,23 @@ public:
 		return *this;
 	}
 
+	Vector2D operator*(const float f)
+	{
+		return Vector2D<T>{(T)this->x * f, (T)this->y * f};
+	}
+
+	Vector2D operator*(const int i)
+	{
+		return Vector2D<T>{(T)this->x * i, (T)this->y * i};
+	}
+
+	friend Vector2D operator*(const float f, const Vector2D<T>& dest)
+	{
+		return Vector2D<T>{(T)dest.x * f, (T)dest.y * f};
+	}
+
+	friend Vector2D operator*(const int i, const Vector2D<T>& dest)
+	{
+		return Vector2D<T>{ (T)dest.x * i, (T)dest.y*i };
+	}
 };

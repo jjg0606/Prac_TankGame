@@ -185,6 +185,7 @@ void Block::OnCollision(Collider* destCol)
 	}
 	switch (destCol->Tag)
 	{
+	case COL_TAG_E_TANK:
 	case COL_TAG_P_TANK:
 		HandleTankCollision(destCol);
 		break;

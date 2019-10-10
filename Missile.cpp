@@ -90,7 +90,30 @@ void Missile::Init(int direction, int x, int y, bool isPlayers)
 
 void Missile::OnCollision(Collider* destCol)
 {
-
+	switch (destCol->Tag)
+	{
+	case COL_TAG_E_TANK:
+		if (Collider::Tag == COL_TAG_P_MISSILE)
+		{
+			isExploded = true;
+			Collider::Tag = COL_TAG_PASS;
+		}
+		break;
+	case COL_TAG_P_TANK:
+		if (Collider::Tag == COL_TAG_E_MISSILE)
+		{
+			isExploded = true;
+			Collider::Tag = COL_TAG_PASS;
+		}
+		break;
+	case COL_TAG_E_MISSILE:
+	case COL_TAG_P_MISSILE:
+		if (destCol->Tag != Collider::Tag)
+		{
+			isExploded = true;
+		}
+		break;
+	}
 }
 
 void Missile::Start()
